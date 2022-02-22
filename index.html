@@ -1,0 +1,90 @@
+<html lang="en" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/project.css">
+</head>
+
+<body>
+    <div data-current="logIn" class="page active wrapper-card">
+
+        <div>
+            <h2>כניסת משתמש</h2>
+            <form class="flex-col">
+                <lable>שם</lable>
+                <input name="userName" type="text" />
+
+                <lable>סיסמא</lable>
+                <input name="userPassword" type="password" />
+
+            </form>
+            <button onclick="onSubmit()" id="submitLogIn" data-target="productList"
+                class="navigation-btn- btn">כניסה</button>
+            <div>
+                <label>אין לך חשבון?</label>
+                <a href="#signUp" id="submitMoveToSignUp" data-target="signUp" class="navigation-btn"> הירשם כאן
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div data-current="signUp" class="page wrapper-card">
+        <h2>יצירת משתמש חדש</h2>
+        <form class="flex-col">
+            <lable>שם פרטי</lable>
+            <input name="userName" type="text" />
+            <lable>סיסמא</lable>
+            <input name="userPassword" type="password" />
+            <lable>מייל</lable>
+            <input name="userEmail" type="email" />
+        </form>
+        <button data-target="productList" onclick="SignUP()" class="btn">הרשמה</button>
+    </div>
+
+
+    <div data-current="productList" class="page">
+        <h2> רשימת הקניות שלי</h2>
+        <div class="card-list">
+
+        </div>
+        <button data-target="newProduct" class="navigation-btn">הוספת מוצר</button>
+
+    </div>
+    <div data-current="newProduct" class="page wrapper-card">
+        <h2>הכנס פרטי מוצר</h2>
+        <form class="flex-col">
+            <label>שם מוצר</label>
+            <input name="productName" type="text">
+            <label>שם החברה </label>
+            <input name="productCompany" type="text">
+            <label>כמות</label>
+            <input name="productAmount" type="text">
+        </form>
+        <button onclick="addProduct()">הוספת המוצר לרשימה</button>
+    </div>
+    <nav>
+        <button id="logOut" onclick="logOut()" data-target="logIn" class="navigation-btn">יציאה</button>
+
+    </nav>
+    <script src="./communication/DB.js"></script>
+    <script src="./communication/server.js"></script>
+    <script src="./communication/FXMLHttpRequest.js"></script>
+    
+    <script src="./models/user.model.js"></script>
+    <script src="./models/product.model.js"></script>
+
+    <script src="./client/login.js"></script>
+    <script src="./client/products.js"></script>
+    <script src="./client/register.js"></script>
+
+
+
+    <script src="./spa.js"></script>
+
+
+
+</body>
