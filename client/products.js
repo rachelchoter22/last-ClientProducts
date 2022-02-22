@@ -31,7 +31,7 @@ function buildProductListHtml() {
         if (fxhr.readyState == 'DONE') {
             if (fxhr.response.status == 200) {
                 //מעדכנים רשימת מוצרים תחת UserList
-                updateProductListInUsers(fxhr.response.body.productList);
+                updateProductListInUsers(fxhr.response.body);
                 document.getElementsByClassName('card-list')[0].innerHTML = createHtml(fxhr.response.body);
                 navigateTo('productList');
 
@@ -75,7 +75,7 @@ function deleteProduct(event) {
         });
     product = new Product(arrayValues[0], arrayValues[1], arrayValues[2]);
     var fxhr = new FXMLHttpRequest();
-    fxhr.open('DELETE', `/currentUser/productList?productName=${product.productName}&productCompany=${product.productCompany}`);
+    fxhr.open('DELETE', `/currentUser/productList?productName=${product.productName}&productCompany=${product.productCompany}&productAmount=${product.productAmount}`);
 
     fxhr.onreadystatechange = function () {
         if (fxhr.readyState == 'DONE') {
@@ -118,13 +118,17 @@ function editProductAmount(event) {
 }
 
 function updateProductListInUsers(products) {
+    if (!products.length) {
+        document.getElementsByClassName('card-list')[0].innerHTML  =''
+        return;
+    }
     var user = null;
     var fxhr = new FXMLHttpRequest();
     fxhr.open('GET', '/currentUser');
     fxhr.onreadystatechange = function () {
         if (fxhr.readyState == 'DONE') {
             if (fxhr.response.status == 200) {
-                user = fxhr.response.body;
+                user = fxhr.response.body[0];
             }
             else if (fxhr.response.status == 500) {
                 console.log(fxhr.response.data);

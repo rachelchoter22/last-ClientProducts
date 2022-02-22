@@ -9,7 +9,7 @@ class server {
         try {
             if (!storgeValue) return response;
             var data = getResByRequest(request, storgeValue);
-            if (data) {
+            if (data && data.length != 0) {
                 response = new FResponse(200, data);
             }
             else return response;
@@ -23,23 +23,23 @@ class server {
     SetToLocalStorage(request) {
         var response = new FResponse(404, {}),
             storageKey = request.urls[0],
-            storgeValue = JSON.parse(DB.prototype.Get(storageKey));
+            storageValue = JSON.parse(DB.prototype.Get(storageKey));
         try {
-            if (!storgeValue) {
+            if (!storageValue) {
                 var array = [];
                 array.push(request.dataToSave);
                 DB.prototype.Set(storageKey, JSON.stringify(array));
                 response = new FResponse(200, request.dataToSave);
             }
             else {
-                var data = getResByRequest(request);
+                var data = getResByRequest(request, storageValue);
                 var isExist = data.filter(item => JSON.stringify(item) == JSON.stringify(request.dataToSave));
                 if (isExist.length)
                     response = new FResponse(403);
                 else {
-                    var valueToSet = setToStorageByUrls(request, storgeValue);
+                    var valueToSet = setToStorageByUrls(request, storageValue);
                     DB.prototype.Set(storageKey, JSON.stringify(valueToSet));
-                    response = new FResponse(200, sValue);
+                    response = new FResponse(200, valueToSet);
                 }
             }
 
@@ -56,7 +56,7 @@ class server {
             storgeValue = JSON.parse(DB.prototype.Get(storageKey));
         try {
             if (!storgeValue) return response;
-            if (request.parameters || request.urls) {
+            if (request.parameters || request.urls.length > 1) {
                 var valueAfterDelete = deleteFromStorage(request, storgeValue);
                 DB.prototype.Set(storageKey, JSON.stringify(valueAfterDelete));
                 response = new FResponse(200, storgeValue);
@@ -81,7 +81,8 @@ class server {
             if (!storgeValue) return response;
             if (request.parameters || request.urls) {
                 var valueAfterUpdate = updateStorage(request, storgeValue);
-                DB.prototype.Set(storageKey, JSON.stringify(valueAfterUpdate));
+                if (valueAfterUpdate)
+                    DB.prototype.Set(storageKey, JSON.stringify(valueAfterUpdate));
                 response = new FResponse(200, storgeValue);
             }
         }
@@ -125,15 +126,17 @@ function getResByRequest(request, storageValue) {
 }
 
 function filterByUrls(urls, storageValue) {
-    var resData = null;
+    var resData = storageValue;
     urls.forEach(url => {
-        if (storageValue[url])
+        if (storageValue && storageValue[0] && storageValue[0][url]) {
+            resData = storageValue[0][url];
+        }
+        if (storageValue && storageValue[url])
             resData = storageValue[url];
     });
     return resData;
 }
 function filterByParams(params, arrayToFilter) {
-    var arrayAfterFilter = null;
     if (params)
         params.forEach(parameter => {
             arrayToFilter = arrayToFilter.filter(item => item[parameter.key] == parameter.value);
@@ -142,13 +145,16 @@ function filterByParams(params, arrayToFilter) {
 }
 //from post
 function setToStorageByUrls(request, storageValue) {
-
+    var pointer = storageValue;
     request.urls.forEach((url) => {
-        if (storageValue[url]) {
-            storageValue = storageValue[url];
+        if (storageValue && storageValue[0] && storageValue[0][url]) {
+            pointer = storageValue[0][url];
+        }
+        if (storageValue && storageValue[url]) {
+            pointer = storageValue[url];
         }
     });
-    storageValue.push(dataToSave);
+    pointer.push(request.dataToSave);
     return storageValue;
 }
 function deleteFromStorage(request, storageValue) {
@@ -156,6 +162,10 @@ function deleteFromStorage(request, storageValue) {
         arrayToCompere,
         indexes = [];
     request.urls.forEach(url => {
+        if (storageValue && storageValue[0] && storageValue[0][url]) {
+            deleteArray = storageValue[0][url];
+            arrayToCompere = storageValue[0][url];;
+        }
         if (storageValue[url]) {
             deleteArray = storageValue[url];
             arrayToCompere = storageValue[url];;
@@ -192,16 +202,24 @@ function updateStorage(request, storageValue) {
         };
         //get place to update
         request.urls.forEach(url => {
+            if (arrayToUpdate && arrayToUpdate[0] && arrayToUpdate[0][url]) {
+                arrayToUpdate[0][url] = request.dataToSave;
+
+            }
             if (arrayToUpdate[url])
                 arrayToUpdate = request.dataToSave;
         });
 
-
+        return storageValue;
 
     }
     else {
 
         request.urls.forEach(url => {
+            if (storageValue && storageValue[0] && storageValue[0][url]) {
+                arrayToUpdate = storageValue[0][url];
+                arrayToCompere = storageValue[0][url];
+            }
             if (storageValue[url]) {//go to product list
                 arrayToUpdate = storageValue[url];
                 arrayToCompere = storageValue[url];;
@@ -221,51 +239,8 @@ function updateStorage(request, storageValue) {
         });
         return storageValue;
     }
+}
 
-    //after finding user its in updateArray and we should go to last object to set
-
-
-    torageValue;
-
-
-    function isToSearchInFirstObject(req) {
-return request.headers && request.headers['search-in-first'];
-    }
-    // } 
-    // function updaeteFromStorageByUrls(request, storageValue) {
-    //     pointerForEdit = storageValue;
-
-    //     request.urls.forEach((url, index) => {
-    // if (index)
-    pointerForEdit = storageValue[url];
-});
-//     var indexesToDelete = getIndexOfItems(request.parameters, pointerForEdit);
-indexesToDelete.forEach(itemIndex => {
-//         pointerForEdit.splice(itemIndex, itemIndex + 1);
-//     });
-
-//     ateStorageByUrls(request, storageValue) {
-//         var pointerForEdit = storageValue;
-
-//         request.urls.forEach((url, index) => {
-//             if (index)
-//                 pointerForEdit = storageValue[url];
-//         });
-
-//         var indexesToUpdate = getIndexOfItems(request.parameters, pointerForEdit);
-//         indexesToUpdate.forEach(itemIndex => {
-//             pointerForEdit[itemIndex] = request.dataToSave;
-
-
-//             function getIndexOfItems(parameters, currentArray) {
-//                 var itemsToDelete = Object.assign([], currentArray),
-//                     indexes = [];
-//                 parameters.forEach(parameter => {
-//                     itemsToDelete = itemsToDelete.filter(item => item[parameter.key] == parameter.value);
-//                 })
-//                 itemsToDelete.forEach(item => {
-//                     indexes.push(currentArray.findIndex(x => JSON.stringify(x) == JSON.stringify(item)));
-//                 });
-//                 return indexes;
-
-// }
+function isToSearchInFirstObject(req) {
+    return req.headers && req.headers['search-in-first'];
+}

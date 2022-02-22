@@ -60,6 +60,9 @@ function isLogIn() {
                     res = true;
                 }
             }
+            else if(fxhr.response.status == 404){
+                res = false;
+            }
             else if (fxhr.response.status == 500) {
                 console.log(fxhr.response.data);
                 res = false;
